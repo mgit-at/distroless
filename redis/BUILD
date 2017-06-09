@@ -5,13 +5,24 @@ load("@runtimes_common//structure_tests:tests.bzl", "structure_test")
 
 docker_build(
     name = "redis",
-    base = "//base:base",
+    base = "//init:init-base",
+    cmd = [
+        "/usr/bin/redis-server",
+        "/redis.conf",
+    ],
     debs = [
         "@redis_server//file",
         "@libjemalloc//file",
     ],
-    entrypoint = [
-        "/usr/bin/redis-server",
+    files = [
+        "redis.conf",
+    ],
+    ports = ["6379"],
+    symlinks = {
+        "/var/lib/redis": "/srv",
+    },
+    volumes = [
+        "/srv",
     ],
 )
 
