@@ -113,6 +113,7 @@ http_file(
     sha256 = "660fb0b07fad591fe6b44f547c0314b91f2fa1515375c51d7cf8be01072e1206",
     url = "http://deb.debian.org/debian/pool/main/r/redis/redis-server_3.2.8-2~bpo8+1_amd64.deb",
 )
+
 http_file(
     name = "libjemalloc",
     sha256 = "caeeb8b60bee0b732de25b6091dae30d58f1cebcf7467900525d5d266d4360ba",
