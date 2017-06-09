@@ -119,6 +119,14 @@ http_file(
     url = "http://deb.debian.org/debian/pool/main/j/jemalloc/libjemalloc1_3.6.0-3_amd64.deb",
 )
 
+# init
+http_file(
+    name = "tini",
+    executable = True,
+    sha256 = "6c41ec7d33e857d4779f14d9c74924cab0c7973485d2972419a3b7c7620ff5fd",
+    url = "https://github.com/krallin/tini/releases/download/v0.14.0/tini-static-amd64",
+)
+
 # Docker rules.
 git_repository(
     name = "io_bazel_rules_docker",
