@@ -24,9 +24,10 @@ genrule(
 docker_build(
     name = "init-base",
     base = "//base:base",
-    # does not work, bazel generates ["/tini", []] which can not be loaded by docker
-    #entrypoint = ["/tini", "--"],
-    entrypoint = ["/tini"],
+    entrypoint = [
+        "/tini",
+        "--",
+    ],
     tars = [
         ":tini.tar",
         ":init_passwd.passwd.tar",
