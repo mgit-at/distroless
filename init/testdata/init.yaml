@@ -2,5 +2,5 @@ schemaVersion: "1.0.0"
 commandTests:
   - name: version
     command: ["/tini", "--version"]
-    expectedOutput: ['tini version 0.14.0 - .*']
+    expectedOutput: ['tini version 0.*']
     exitCode: 0

@@ -13,7 +13,7 @@ passwd_file(
     username = "user",
 )
 
-# rename tini-static-amd64 to tini
+# rename tini-static-muslc-amd64 to tini
 genrule(
     name = "tini_tar",
     srcs = ["@tini//file"],
