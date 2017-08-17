@@ -15,32 +15,33 @@ passwd_file(
     username = "root",
 )
 
-# Create /tmp, too many things assume it exists.
-docker_build(
-    name = "with_tmp",
-    directory = "/tmp",
-    files = [":empty"],
-)
-
 load("//cacerts:cacerts.bzl", "cacerts")
 
 cacerts(
     name = "cacerts",
 )
 
+load("@debian_jessie_amd64//debs:deb_packages.bzl", "debian_jessie_amd64")
+
+# Create /tmp, too many things assume it exists.
+# tmp.tar has a /tmp with the correct permissions 01777
+# A tar is needed because at the moment there is no way to create a diretory with specific permissions
+
 docker_build(
     name = "base",
-    base = ":with_tmp",
     debs = [
-        "@glibc//file",
-        "@libssl//file",
-        "@openssl//file",
+        debian_jessie_amd64["libc6"],
+        debian_jessie_amd64["libssl1.0.0"],
+        debian_jessie_amd64["openssl"],
+        debian_jessie_amd64["netbase"],
     ],
     tars = [
         ":base_passwd.passwd.tar",
         ":cacerts.tar",
+        ":tmp.tar",
     ],
 )
+
 
 structure_test(
     name = "base_test",

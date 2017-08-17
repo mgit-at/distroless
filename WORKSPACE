@@ -10,6 +10,84 @@ load("@io_bazel_rules_go//go:def.bzl", "go_repositories")
 
 go_repositories()
 
+# To build the par file for the helper program in deb_helper
+git_repository(
+    name = "subpar",
+    remote = "https://github.com/google/subpar",
+    tag = "1.0.0",
+)
+
+# An example of actually using the new rules of this project
+load(
+    "//deb_helper:deb_helper.bzl",
+    "deb_loader",
+    "deb_packages",
+)
+
+# Initialize the deb_loader which downloads the deb files in deb_packages rules
+deb_loader()
+
+# For every source of deb packages create a deb_packages rule
+# The name does not have to be like the one here, but it helps to know what is used in BUILD files
+deb_packages(
+    name = "debian_jessie_amd64",
+    architecture = "amd64",
+    distro = "jessie",
+    distro_type = "debian",
+    mirrors = [
+        "http://deb.debian.org",
+        #"http://my.private.mirror",
+    ],
+    packages = {
+        "ca-certificates": "pool/main/c/ca-certificates/ca-certificates_20141019+deb8u3_all.deb",
+        "libc6": "pool/main/g/glibc/libc6_2.19-18+deb8u10_amd64.deb",
+        "libjemalloc1": "pool/main/j/jemalloc/libjemalloc1_3.6.0-3_amd64.deb",
+        "libssl1.0.0": "pool/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u6_amd64.deb",
+        "netbase": "pool/main/n/netbase/netbase_5.3_all.deb",
+        "openssl": "pool/main/o/openssl/openssl_1.0.1t-1+deb8u6_amd64.deb",
+    },
+    packages_sha256 = {
+        "ca-certificates": "bd799f47f5ae3260b6402b1fe19fe2c37f2f4125afcd19327bf69a9cf436aeff",
+        "libc6": "0a95ee1c5bff7f73c1279b2b78f32d40da9025a76f93cb67c03f2867a7133e61",
+        "libjemalloc1": "caeeb8b60bee0b732de25b6091dae30d58f1cebcf7467900525d5d266d4360ba",
+        "libssl1.0.0": "0fc777d9242fd93851eb49c4aafd22505048b7797c0178f20c909ff918320619",
+        "netbase": "3979bdd40c5666ef9bf71a5391ba01ad38e264f2ec96d289993f2a0805616dd3",
+        "openssl": "41613658b4e93ffaa7de25060a4a1ab2f8dfa1ee15ed90aeac850a9bf5a134bb",
+    },
+    # TODO:
+    #tags = [
+    #    "manual",
+    #]
+)
+
+deb_packages(
+    name = "debian_jessie_backports_amd64",
+    architecture = "amd64",
+    distro = "jessie-backports",
+    distro_type = "debian",
+    mirrors = [
+        "http://deb.debian.org",
+        #"http://my.private.mirror",
+    ],
+    packages = {"redis-server": "pool/main/r/redis/redis-server_3.2.8-2~bpo8+1_amd64.deb"},
+    packages_sha256 = {"redis-server": "660fb0b07fad591fe6b44f547c0314b91f2fa1515375c51d7cf8be01072e1206"},
+    # TODO:
+    #tags = [
+    #    "manual",
+    #]
+)
+
+# In the BUILD file where you want to use this source, add a line like this (always @<rule_name>//debs:deb_packages.bzl):
+#
+# load("@debian_jessie_amd64//debs:deb_packages.bzl", "debian_jessie_amd64")
+#
+# and in the docker_build rule refer to packages like this:
+#
+# docker_build(
+#     debs = [
+#         debian_jessie_amd64["foo"],
+#         [...]
+
 # For the glibc base image.
 http_file(
     name = "glibc",
@@ -107,18 +185,6 @@ http_file(
     url = "https://busybox.net/downloads/binaries/1.21.1/busybox-x86_64",
 )
 
-# redis - backports
-http_file(
-    name = "redis_server",
-    sha256 = "660fb0b07fad591fe6b44f547c0314b91f2fa1515375c51d7cf8be01072e1206",
-    url = "http://deb.debian.org/debian/pool/main/r/redis/redis-server_3.2.8-2~bpo8+1_amd64.deb",
-)
-
-http_file(
-    name = "libjemalloc",
-    sha256 = "caeeb8b60bee0b732de25b6091dae30d58f1cebcf7467900525d5d266d4360ba",
-    url = "http://deb.debian.org/debian/pool/main/j/jemalloc/libjemalloc1_3.6.0-3_amd64.deb",
-)
 
 # init
 http_file(
@@ -131,7 +197,7 @@ http_file(
 # Docker rules.
 git_repository(
     name = "io_bazel_rules_docker",
-    commit = "d0cf5ea34a6f900370b91227b95e9f0a13722c70",
+    commit = "5ce5f4c1bf1ee6458d24c4178a2707111723d5af",
     remote = "https://github.com/bazelbuild/rules_docker.git",
 )
 
