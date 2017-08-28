@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
 # TBD:
-# refactoring, code review, gpg checks
+# refactoring, code review, gpg checks, license, tests(?)
 
 # DONE:
 # python update_workspace.py --update|-u all|<rulename>
-# For now, only prints to stdout and doesn't change WORKSPACE files
+# For now, only prints to stdout and doesn't change WORKSPACE files directly
 
-# python update_workspace.py add <packagename>/<packagename=version> <rulename>
-# Might need some reworking, it feels clumsy and just repeats stuff that is available in BUILD files already.
-# "buildozer 'print label debs' //...:%docker_build" can already list all packages, maybe rework this into --update and remove this command
+# python update_workspace.py --add|-a
+# parses all docker_build rules for debs and adds missing ones to the respective WORKSPACE rule(s)
+# For now, only prints to stdout and doesn't change WORKSPACE files directly
 
 import argparse
 import gzip
@@ -29,18 +29,18 @@ parser = argparse.ArgumentParser(
     description="Adds and updates deb_packages rules in WORKSPACE files"
 )
 
-parser.add_argument("-u", "--update", action='store', metavar="RULE|all",
-                    help='Name of the deb_packages rule that should be updated. If the name is "all", all rules will be updated.')
+parser.add_argument("-u", "--update", metavar="RULENAME", default="all",
+                    help='Name of the deb_packages rule that should be updated. If the rule name is omitted or "all", all rules will be updated.')
 
-parser.add_argument("-a", "--add", action='store', nargs=2, metavar=("PKG", "RULE"),
-                    help='Name of the debian package that should be added to the specified deb_packages rule.')
+parser.add_argument("-a", "--add", action='store_true',
+                    help='Parses BUILD files for docker_build rules and adds debs defined there to the WORKSPACE file.')
 
 
 def get_packages_file(arch, distro_type, distro, mirrors_list):
     release_done = False
-    all_packages_file = tempfile.NamedTemporaryFile(mode="ab",delete=False)
-    release_file = tempfile.NamedTemporaryFile(mode="w+b",delete=False)
-    release_gpg_file = tempfile.NamedTemporaryFile(mode="w+b",delete=False)
+    all_packages_file = tempfile.NamedTemporaryFile(mode="ab", delete=False)
+    release_file = tempfile.NamedTemporaryFile(mode="w+b", delete=False)
+    release_gpg_file = tempfile.NamedTemporaryFile(mode="w+b", delete=False)
 
     for mirror in mirrors_list:
         release_url = urlparse.urljoin(mirror, "/" + distro_type + "/dists/" + distro + "/Release")
@@ -48,14 +48,14 @@ def get_packages_file(arch, distro_type, distro, mirrors_list):
         try:
             urllib.urlretrieve(release_url, release_file.name)
         except:
-            print "Could not load Release file from mirror {} with url {}".format(mirror, release_url)
+            print( "Could not load Release file from mirror {} with url {}".format(mirror, release_url))
             continue
         try:
             urllib.urlretrieve(release_gpg_url, release_gpg_file.name)
             release_done = True
             break
         except:
-            print "Could not load Release.gpg file from mirror {} with url {}".format(mirror, release_gpg_url)
+            print("Could not load Release.gpg file from mirror {} with url {}".format(mirror, release_gpg_url))
             continue
     if not release_done:
         raise Exception("Could not download Release files from any of the supplied mirrors")
@@ -73,7 +73,7 @@ def get_packages_file(arch, distro_type, distro, mirrors_list):
                         package_path = sha256[index]
                         package_sha256 = sha256[index - 2]
                 package_done = False
-                packages_file = tempfile.NamedTemporaryFile(mode="w+b",delete=False)
+                packages_file = tempfile.NamedTemporaryFile(mode="w+b", delete=False)
                 for mirror in mirrors_list:
                     package_url = urlparse.urljoin(mirror, "/" + distro_type + "/dists/" + distro + "/" + package_path)
                     try:
@@ -81,7 +81,7 @@ def get_packages_file(arch, distro_type, distro, mirrors_list):
                         package_done = True
                         break
                     except:
-                        print "Could not load Packages.gz file from mirror {} with url {}".format(mirror, package_url)
+                        print("Could not load Packages.gz file from mirror {} with url {}".format(mirror, package_url))
                         continue
                 if not package_done:
                     raise Exception("Could not download Packages file from any of the supplied mirrors")
@@ -190,6 +190,18 @@ def get_all_rule_names(workspace_contents):
     return result
 
 
+def get_all_debs_used():
+    # run buildozer:
+    # buildozer 'print label debs' //...:%docker_build
+    process = subprocess.Popen(["buildozer", "print label debs", "//...:%docker_build"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = process.communicate()[0]
+    result = {}
+    for word in str(stdout).split():
+        if word.endswith(","):
+            result.setdefault(word.split("[")[0], set()).add(word.split('"')[1])
+    return result
+
+
 def write_distro_to_rule(distro, rule_name, workspace_contents):
     # run buildozer
     # buildozer 'set distro DISTRONAME_GOES_HERE' -:RULENAME_GOES_HERE <WORKSPACE
@@ -214,9 +226,7 @@ def write_packages_sha256_to_rule(dictionary, rule_name, workspace_contents):
     return stdout
 
 
-def update_workspace(args):
-    with open("WORKSPACE", "r") as workspacefile:
-        workspace_contents = workspacefile.read()
+def update_workspace(args, workspace_contents):
     if args.update == "all":
         rule_names = get_all_rule_names(workspace_contents)
     else:
@@ -274,24 +284,23 @@ def update_workspace(args):
     return workspace_contents
 
 
-def add_package(args):
-    with open("WORKSPACE", "r") as workspacefile:
-        workspace_contents = workspacefile.read()
-    rule = args.add[1]
+def add_packages(workspace_contents):
+    deb_packages = get_all_debs_used()
     all_rules = get_all_rule_names(workspace_contents)
-    if rule not in all_rules:
-        raise Exception("Rule %s not found", rule)
-    package = args.add[0]
-    package_names = get_all_package_names(rule, workspace_contents)
-    if package in package_names:
-        # Nothing to do
-        return workspace_contents
-    else:
-        packages = get_all_packages(rule, workspace_contents)
-        packages_sha256 = get_all_packages_sha256(rule, workspace_contents)
-        # TODO: get actual values, it might be just enough to run update afterwards though
-        packages[package] = "changeme"
-        packages_sha256[package] = "changeme"
+    for rule in deb_packages:
+        if rule not in all_rules:
+            raise Exception("Rule %s not found", rule)
+        package_names = get_all_package_names(rule, workspace_contents)
+        if set(package_names) == deb_packages[rule]:
+            # Nothing to do
+            continue
+        else:
+            packages = get_all_packages(rule, workspace_contents)
+            packages_sha256 = get_all_packages_sha256(rule, workspace_contents)
+            # TODO: Maybe don't update unrelated packages in one step (for now, just runs update after add)
+            for package in deb_packages[rule]:
+                packages[package] = "changeme"
+                packages_sha256[package] = "changeme"
 
         workspace_contents = write_packages_to_rule(packages, rule, workspace_contents)
         workspace_contents = write_packages_sha256_to_rule(packages_sha256, rule, workspace_contents)
@@ -299,18 +308,19 @@ def add_package(args):
         # This formats the outputs nicely
         distro = get_distro(rule, workspace_contents)
         workspace_contents = write_distro_to_rule(distro, rule, workspace_contents)
-        return workspace_contents
+    return workspace_contents
 
 
 def main(args):
     apt_pkg.init_system()
-    if args.update:
-        workspace_contents = update_workspace(args)
-    elif args.add:
-        workspace_contents = add_package(args)
+    with open("WORKSPACE", "r") as workspacefile:
+        workspace_contents = workspacefile.read()
+    if args.add:
+        workspace_contents = add_packages(workspace_contents)
+    workspace_contents = update_workspace(args, workspace_contents)
     # Maybe just keep it like this, so it is easier to do a diff with the current WORKSPACE file and redirect the output as needed?
-    print workspace_contents
+    print(workspace_contents)
 
 if __name__ == "__main__":
-    args = parser.parse_args()
-    main(args)
+    arguments = parser.parse_args()
+    main(arguments)

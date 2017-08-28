@@ -3,7 +3,7 @@ workspace(name = "distroless")
 git_repository(
     name = "io_bazel_rules_go",
     remote = "https://github.com/bazelbuild/rules_go.git",
-    tag = "0.4.4",
+    tag = "0.5.3",
 )
 
 load("@io_bazel_rules_go//go:def.bzl", "go_repositories")
@@ -66,10 +66,6 @@ deb_packages(
         "python2.7-minimal": "c89199f908d5a508d8d404efc0e1aef3d9db59ea23bd4532df9e59941643fcfb",
         "zlib1g": "b75102f61ace79c14ea6f06fdd9509825ee2af694c6aa503253df4e6659d6772",
     },
-    # TODO:
-    #tags = [
-    #    "manual",
-    #]
 )
 
 deb_packages(
@@ -89,10 +85,6 @@ deb_packages(
         "openjdk-8-jre-headless": "11c592e237549d74bda30875979c2a937588667d10307c7c14047b8d03f5718a",
         "redis-server": "660fb0b07fad591fe6b44f547c0314b91f2fa1515375c51d7cf8be01072e1206",
     },
-    # TODO:
-    #tags = [
-    #    "manual",
-    #]
 )
 
 # In the BUILD file where you want to use this source, add a line like this (always @<rule_name>//debs:deb_packages.bzl):
@@ -106,9 +98,8 @@ deb_packages(
 #         debian_jessie_amd64["foo"],
 #         [...]
 #
-# To list all packages and their usage with buildozer, run:
-#     buildozer 'print label debs' //...:%docker_build
-# in the root folder of your repository
+# To update all of these packages, run update_workspace.py --update
+# If you later add debs in a docker_build rule, you can run update_workspace.py --add and it will automatically add these packages too.
 
 # For Jetty
 new_http_archive(
@@ -149,7 +140,7 @@ http_file(
 # Docker rules.
 git_repository(
     name = "io_bazel_rules_docker",
-    commit = "5ce5f4c1bf1ee6458d24c4178a2707111723d5af",
+    commit = "db1b348dfdf161a784bc1efc5a1020395572b996",
     remote = "https://github.com/bazelbuild/rules_docker.git",
 )
 
@@ -162,7 +153,7 @@ docker_repositories()
 
 git_repository(
     name = "runtimes_common",
-    commit = "3d73b4fecbd18de77588ab5eef712d50f34f601e",
     remote = "https://github.com/GoogleCloudPlatform/runtimes-common.git",
+    tag = "v0.1.0",
 )
 
