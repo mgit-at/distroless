@@ -2,6 +2,8 @@ package(default_visibility = ["//visibility:public"])
 
 load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build")
 load("@runtimes_common//structure_tests:tests.bzl", "structure_test")
+load("@debian_jessie_amd64//debs:deb_packages.bzl", "debian_jessie_amd64")
+load("@debian_jessie_backports_amd64//debs:deb_packages.bzl", "debian_jessie_backports_amd64")
 
 docker_build(
     name = "redis",
@@ -11,8 +13,8 @@ docker_build(
         "/redis.conf",
     ],
     debs = [
-        "@redis_server//file",
-        "@libjemalloc//file",
+        debian_jessie_amd64["libjemalloc1"],
+        debian_jessie_backports_amd64["redis-server"],
     ],
     files = [
         "redis.conf",
