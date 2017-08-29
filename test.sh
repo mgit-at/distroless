@@ -1,4 +1,4 @@
-#!/bin/python
+#!/bin/bash
 
 # Copyright 2017 Google Inc. All rights reserved.
 
@@ -14,18 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
-import os
+set -e
 
-parser = argparse.ArgumentParser()
-parser.add_argument('root', type=str,
-                    help='The root directory to walk.')
+# Bazel build and test
+bazel clean
+bazel build //...
+bazel test --test_output=errors //...
 
-def main(args):
-    """Prints the files that are inside the container, rooted at the first argument."""
-    for dirpath, _, files in os.walk(args.root):
-        for f in files:
-            print(os.path.join(dirpath, f))
-
-if __name__ == "__main__":
-    main(parser.parse_args())
+# Linting
+./buildifier.sh
+find . -name "*.py" |xargs pylint --disable=R,C

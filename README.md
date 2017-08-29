@@ -5,7 +5,7 @@
 "Distroless" images contain only your application and its runtime dependencies.
 They do not contain package managers, shells any other programs you would expect to find in a standard Linux distribution.
 
-For more information, see this [talk](https://swampup2017.sched.com/event/A6CW/distroless-docker-containerizing-apps-not-vms?iframe=no&w=100%&sidebar=yes&bg=no).
+For more information, see this [talk](https://swampup2017.sched.com/event/A6CW/distroless-docker-containerizing-apps-not-vms?iframe=no&w=100%&sidebar=yes&bg=no) ([video](https://www.youtube.com/watch?v=lviLZFciDv4)).
 
 ## Why should I use distroless images?
 
@@ -34,7 +34,7 @@ Follow these steps to get started:
   Note: This requires Docker 17.05 or higher.
 
   The basic idea is that you'll have one stage to build your application artifacts, and insert them into your runtime distroless image.
-  If you'd like to learn more, please see the documentation on [multi-stage builds]().
+  If you'd like to learn more, please see the documentation on [multi-stage builds](https://docs.docker.com/engine/userguide/eng-image/multistage-build/).
 
   Here's a quick example.
   ```
@@ -56,6 +56,8 @@ Follow these steps to get started:
 ### Bazel
 
 For full documentation on how to use bazel to generate Docker images, see the [bazelbuild/rules_docker](http://github.com/bazelbuild/rules_docker) repository.
+
+For documentation and examples on how to use the bazel deb_packages rules and the related update helper script, see [./package_manager](./package_manager)
 
 Examples can be found in this repository in the [examples](examples/) directory.
 
