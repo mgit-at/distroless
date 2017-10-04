@@ -244,6 +244,14 @@ http_file(
     url = "https://busybox.net/downloads/binaries/1.27.1-i686/busybox",
 )
 
+# For the init image
+http_file(
+    name = "tini",
+    executable = True,
+    sha256 = "2f17cf294c64c78f36c1c9339590a95ce6e672c6a2dbdcc3c417017248acc682",
+    urls = ["https://github.com/krallin/tini/releases/download/v0.16.1/tini-static-muslc-amd64"],
+)
+
 # Docker rules.
 git_repository(
     name = "io_bazel_rules_docker",
