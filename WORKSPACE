@@ -10,6 +10,22 @@ load("@io_bazel_rules_go//go:def.bzl", "go_repositories")
 
 go_repositories()
 
+# To build the par file for the helper program in deb_loader
+git_repository(
+    name = "subpar",
+    remote = "https://github.com/google/subpar",
+    tag = "1.0.0",
+)
+
+# use the deb_loader ruleset
+load(
+    "//deb_loader:deb_loader.bzl",
+    "deb_packages",
+    "deb_repositories",
+)
+
+deb_repositories()
+
 load(
     "//package_manager:package_manager.bzl",
     "package_manager_repositories",
