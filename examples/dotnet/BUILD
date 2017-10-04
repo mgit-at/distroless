@@ -20,3 +20,19 @@ structure_test(
     config = "testdata/hello.yaml",
     image = ":hello",
 )
+
+docker_build(
+    name = "deb_packages_hello",
+    base = "//dotnet:deb_packages_dotnet",
+    cmd = [
+        "dotnet",
+        "/bin/Release/netcoreapp2.0/hello.dll",
+    ],
+    files = [":bin"],
+)
+
+structure_test(
+    name = "deb_packages_hello_test",
+    config = "testdata/hello.yaml",
+    image = ":deb_packages_hello",
+)

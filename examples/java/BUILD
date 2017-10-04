@@ -16,3 +16,16 @@ structure_test(
     config = "testdata/hello.yaml",
     image = ":hello",
 )
+
+java_image(
+    name = "deb_packages_hello",
+    srcs = ["HelloJava.java"],
+    base = "//java:deb_packages_java8",
+    main_class = "examples.HelloJava",
+)
+
+structure_test(
+    name = "deb_packages_hello_test",
+    config = "testdata/deb_packages_hello.yaml",
+    image = ":deb_packages_hello",
+)

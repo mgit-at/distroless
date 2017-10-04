@@ -67,3 +67,47 @@ structure_test(
     config = "testdata/certs.yaml",
     image = ":check_certs_image",
 )
+
+load("//cacerts:cacerts.bzl", "deb_packages_cacerts")
+
+deb_packages_cacerts(
+    name = "deb_packages_cacerts",
+)
+
+load("@debian_jessie_amd64//debs:deb_packages.bzl", "debian_jessie_amd64")
+
+docker_build(
+    name = "deb_packages_base",
+    debs = [
+        debian_jessie_amd64["libc6"],
+        debian_jessie_amd64["libssl1.0.0"],
+        debian_jessie_amd64["openssl"],
+        debian_jessie_amd64["netbase"],
+        debian_jessie_amd64["tzdata"],
+    ],
+    tars = [
+        ":base_passwd.passwd.tar",
+        ":deb_packages_cacerts.tar",
+        ":tmp.tar",
+        "@debian_jessie//file:os_release.tar",
+    ],
+)
+
+structure_test(
+    name = "deb_packages_base_test",
+    config = "testdata/base.yaml",
+    image = ":deb_packages_base",
+)
+
+docker_build(
+    name = "deb_packages_check_certs_image",
+    base = "//base:deb_packages_base",
+    files = [":check_certs"],
+    visibility = ["//visibility:private"],
+)
+
+structure_test(
+    name = "deb_packages_certs_test",
+    config = "testdata/certs.yaml",
+    image = ":deb_packages_check_certs_image",
+)

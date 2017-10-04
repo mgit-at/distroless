@@ -48,3 +48,44 @@ structure_test(
     config = "testdata/java.yaml",
     image = ":java8",
 )
+
+load("@debian_jessie_amd64//debs:deb_packages.bzl", "debian_jessie_amd64")
+load("@debian_jessie_backports_amd64//debs:deb_packages.bzl", "debian_jessie_backports_amd64")
+
+docker_build(
+    name = "deb_packages_java8",
+    base = "//cc:deb_packages_cc",
+    debs = [
+        debian_jessie_amd64["zlib1g"],
+        debian_jessie_backports_amd64["openjdk-8-jre-headless"],
+    ],
+    entrypoint = [
+        "/usr/bin/java",
+        "-jar",
+        # We expect users to use:
+        # cmd = ["/path/to/deploy.jar", "--option1", ...]
+    ],
+    symlinks = {
+        "/usr/bin/java": "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java",
+    },
+    tars = [":cacerts_java"],
+)
+
+structure_test(
+    name = "deb_packages_java8_test",
+    config = "testdata/java.yaml",
+    image = ":deb_packages_java8",
+)
+
+java_image(
+    name = "deb_packages_check_certs",
+    srcs = ["testdata/CheckCerts.java"],
+    base = "//java:deb_packages_java8",
+    main_class = "testdata.CheckCerts",
+)
+
+structure_test(
+    name = "deb_packages_check_certs_test",
+    config = "testdata/java.yaml",
+    image = ":deb_packages_java8",
+)

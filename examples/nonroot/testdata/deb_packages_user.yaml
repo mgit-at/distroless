@@ -1,0 +1,5 @@
+schemaVersion: "1.0.0"
+commandTests:
+  - name: user
+    command: ['/app/examples/nonroot/deb_packages_user.binary.runfiles/distroless/examples/nonroot/deb_packages_user.binary']
+    expectedOutput: ['User: nonroot', 'Uid: 1002']

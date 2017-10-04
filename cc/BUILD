@@ -12,3 +12,14 @@ docker_build(
         packages["libstdc++6"],
     ],
 )
+
+load("@debian_jessie_amd64//debs:deb_packages.bzl", "debian_jessie_amd64")
+
+docker_build(
+    name = "deb_packages_cc",
+    base = "//base:deb_packages_base",
+    debs = [
+        debian_jessie_amd64["libgcc1"],
+        debian_jessie_amd64["libstdc++6"],
+    ],
+)

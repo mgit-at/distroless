@@ -8,3 +8,10 @@ docker_build(
     entrypoint = ["/nodejs/bin/node"],
     tars = ["@nodejs//:tar"],
 )
+
+docker_build(
+    name = "deb_packages_nodejs",
+    base = "//cc:deb_packages_cc",
+    entrypoint = ["/nodejs/bin/node"],
+    tars = ["@nodejs//:tar"],
+)

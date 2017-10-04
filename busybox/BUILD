@@ -35,3 +35,22 @@ structure_test(
     config = "testdata/debug.yaml",
     image = ":debug",
 )
+
+docker_build(
+    name = "deb_packages_debug",
+    base = "//cc:deb_packages_cc",
+    directory = "/",
+    entrypoint = ["/busybox/sh"],
+    env = {
+        "PATH": "/busybox",
+    },
+    tars = [
+        ":busybox.tar",
+    ],
+)
+
+structure_test(
+    name = "deb_packages_debug_test",
+    config = "testdata/debug.yaml",
+    image = ":deb_packages_debug",
+)

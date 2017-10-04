@@ -35,3 +35,25 @@ structure_test(
     image = ":user",
     visibility = ["//visibility:private"],
 )
+
+docker_build(
+    name = "deb_packages_passwd_image",
+    base = "//base:deb_packages_base",
+    tars = [":nonroot.passwd.tar"],
+    user = "nonroot",
+    visibility = ["//visibility:private"],
+)
+
+go_image(
+    name = "deb_packages_user",
+    srcs = ["testdata/user.go"],
+    base = ":deb_packages_passwd_image",
+    visibility = ["//visibility:private"],
+)
+
+structure_test(
+    name = "deb_packages_passwd_test",
+    config = "testdata/deb_packages_user.yaml",
+    image = ":deb_packages_user",
+    visibility = ["//visibility:private"],
+)

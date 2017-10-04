@@ -26,3 +26,16 @@ structure_test(
     config = "testdata/hello.yaml",
     image = ":hello",
 )
+
+docker_build(
+    name = "deb_packages_hello",
+    base = "//nodejs:deb_packages_nodejs",
+    cmd = ["hello.js"],
+    files = [":hello.js"],
+)
+
+structure_test(
+    name = "deb_packages_hello_test",
+    config = "testdata/hello.yaml",
+    image = ":deb_packages_hello",
+)
