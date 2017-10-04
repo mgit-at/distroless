@@ -5,23 +5,23 @@
 # substitution
 
 steps:
-# Build the deb_helper PAR file
+# Build the deb_file_loader PAR file
 # this binary is used by the deb_packages rules
 # to download debian packages
 - name: gcr.io/cloud-builders/bazel
   args: [
     '--output_base', '/workspace',
-    'build', '//deb_helper:deb_file_loader.par',
+    'build', '//deb_loader:deb_file_loader.par',
     # TODO(r2d4): Remove once PAR compilation runs properly inside
     # the Bazel sandbox on cloudbuild.
     '--strategy', 'PythonCompile=standalone'
   ]
 
-# Upload the deb_helper PAR file to a GCS bucket
+# Upload the deb_loader PAR file to a GCS bucket
 - name: gcr.io/cloud-builders/gsutil
   args: [
     'cp',
-    'bazel-bin/deb_helper/deb_file_loader.par',
+    'bazel-bin/deb_loader/deb_file_loader.par',
     'gs://distroless/package_manager_tools/$COMMIT_SHA/deb_file_loader.par'
   ]
 
