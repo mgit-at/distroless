@@ -74,6 +74,7 @@ deb_packages(
         "libgcc1": "pool/main/g/gcc-4.9/libgcc1_4.9.2-10_amd64.deb",
         "libgssapi-krb5-2": "pool/main/k/krb5/libgssapi-krb5-2_1.12.1+dfsg-19+deb8u2_amd64.deb",
         "libicu52": "pool/main/i/icu/libicu52_52.1-8+deb8u5_amd64.deb",
+        "libjemalloc1": "pool/main/j/jemalloc/libjemalloc1_3.6.0-3_amd64.deb",
         "liblttng-ust0": "pool/main/u/ust/liblttng-ust0_2.5.0-1_amd64.deb",
         "liblzma5": "pool/main/x/xz-utils/liblzma5_5.1.1alpha+20120614-2+b3_amd64.deb",
         "libpython2.7-minimal": "pool/main/p/python2.7/libpython2.7-minimal_2.7.9-2+deb8u1_amd64.deb",
@@ -95,6 +96,7 @@ deb_packages(
         "libgcc1": "a1402290165e8d91b396a33d79580a4501041e92bdb62ef23929a0c207cd9af9",
         "libgssapi-krb5-2": "06e83f850bb4271de223623f1f44cc2956390a289d0e94a150ba4fbb97ac8b4a",
         "libicu52": "8882b51b67973d23719f078dec907a81fe3ec6675954dfa6b6784d0547cc66db",
+        "libjemalloc1": "caeeb8b60bee0b732de25b6091dae30d58f1cebcf7467900525d5d266d4360ba",
         "liblttng-ust0": "f9f5d7d6c70fca493c8e194a4f945c64a1fbcdc47c75a5008224f91d80456d6c",
         "liblzma5": "a60661f537292862f9bfa4c421df5af126da5032def818a0bf38c49b68656328",
         "libpython2.7-minimal": "916e2c541aa954239cb8da45d1d7e4ecec232b24d3af8982e76bf43d3e1758f3",
@@ -122,9 +124,11 @@ deb_packages(
     ],
     packages = {
         "openjdk-8-jre-headless": "pool/main/o/openjdk-8/openjdk-8-jre-headless_8u131-b11-1~bpo8+1_amd64.deb",
+        "redis-server": "pool/main/r/redis/redis-server_3.2.8-2~bpo8+1_amd64.deb",
     },
     packages_sha256 = {
         "openjdk-8-jre-headless": "11c592e237549d74bda30875979c2a937588667d10307c7c14047b8d03f5718a",
+        "redis-server": "660fb0b07fad591fe6b44f547c0314b91f2fa1515375c51d7cf8be01072e1206",
     },
     pgp_key = "jessie_archive_key",
 )
