@@ -6,9 +6,32 @@ git_repository(
     tag = "0.5.5",
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_repositories")
+load("@io_bazel_rules_go//go:def.bzl", "go_repositories", "go_repository")
 
 go_repositories()
+
+# Go dependencies of the update_workspace helper tool
+
+# "golang.org/x/crypto/openpgp"
+go_repository(
+    name = "org_golang_x_crypto",
+    commit = "847319b7fc94cab682988f93da778204da164588",
+    importpath = "golang.org/x/crypto",
+)
+
+# "github.com/knqyf263/go-deb-version"
+go_repository(
+    name = "com_github_knqyf263_go_deb_version",
+    commit = "9865fe14d09b1c729188ac810466dde90f897ee3",
+    importpath = "github.com/knqyf263/go-deb-version",
+)
+
+# "github.com/stapelberg/godebiancontrol"
+go_repository(
+    name = "com_github_stapelberg_godebiancontrol",
+    commit = "4376b22fb2c4dfda546c972f686310af907819b2",
+    importpath = "github.com/stapelberg/godebiancontrol",
+)
 
 # To build the par file for the helper program in deb_loader
 git_repository(
@@ -25,6 +48,16 @@ load(
 )
 
 deb_repositories()
+
+# The Debian jessie archive signing key
+# Source: https://ftp-master.debian.org/keys.html
+# Full fingerprint: 126C 0D24 BD8A 2942 CC7D F8AC 7638 D044 2B90 D010
+http_file(
+    name = "jessie_archive_key",
+    # It is highly recommended to use the sha256 hash of the key file to make sure it is untampered
+    sha256 = "e42141a829b9fde8392ea2c0e329321bb29e5c0453b0b48e33c9f88bdc4873c5",
+    urls = ["https://ftp-master.debian.org/keys/archive-key-8.asc"],
+)
 
 load(
     "//package_manager:package_manager.bzl",
