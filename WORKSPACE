@@ -33,21 +33,8 @@ go_repository(
     importpath = "github.com/stapelberg/godebiancontrol",
 )
 
-# To build the par file for the helper program in deb_loader
-git_repository(
-    name = "subpar",
-    remote = "https://github.com/google/subpar",
-    tag = "1.0.0",
-)
-
-# use the deb_loader ruleset
-load(
-    "//deb_loader:deb_loader.bzl",
-    "deb_packages",
-    "deb_repositories",
-)
-
-deb_repositories()
+# use the deb_packages ruleset
+load("//deb_packages:deb_packages.bzl", "deb_packages")
 
 # The Debian jessie archive signing key
 # Source: https://ftp-master.debian.org/keys.html
