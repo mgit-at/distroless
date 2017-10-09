@@ -1,0 +1,12 @@
+schemaVersion: "1.0.0"
+commandTests:
+  - name: version
+    command: ["/usr/sbin/nginx", "-v"]
+    expectedOutput: ['^$']
+    expectedError: ['nginx version: nginx/.*']
+    exitCode: 0
+#  - name: configtest
+#    command: ["/usr/sbin/nginx", "-t"]
+#    expectedOutput: ['^$']
+#    expectedError: ['nginx version: nginx/.*']
+#    exitCode: 1
